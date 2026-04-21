@@ -10,24 +10,34 @@ def create_connection(db_file):
         print(f"Error connecting to database: {e}")
     return conn
 
-def create_table(conn):
-    """Create a table in the SQLite database."""
+def create_tables(conn):
     try:
-        sql_create_table = """CREATE TABLE IF NOT EXISTS users (
-                                  id INTEGER PRIMARY KEY AUTOINCREMENT,
-                                  name TEXT NOT NULL,
-                                  age INTEGER,
-                                  email TEXT NOT NULL UNIQUE
-                              );"""
-        cursor = conn.cursor()
-        cursor.execute(sql_create_table)
-        print("Table created successfully.")
-    except sqlite3.Error as e:
-        print(f"Error creating table: {e}")
-
+        cursor= conn.cursor()
+        sql_create_accounts= """
+        CREATE TABLE IF NOT EXISTS accounts (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            balance REAL NOT NULL
+        );
+        """
+        sql_create_transactions="""
+        CREATE TABLE IF NOT EXISTS transactions (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            account_id INTEGER,
+            type TEXT,
+            amount REAL,
+            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP    
+        );
+        """
+        cursor.execute(sql_create_accounts)
+        cursor.execute(sql_create_transactions)
+        conn.commit()
+        print("Tables Created sucessfully")
+    except Exception as e:
+        print(f"Error: {e}")
 def initialize_database(db_file):
     """Initialize the database by creating a connection and setting up tables."""
     conn = create_connection(db_file)
     if conn:
-        create_table(conn)
+        create_tables(conn)
         conn.close()
